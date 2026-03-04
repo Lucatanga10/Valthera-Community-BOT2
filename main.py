@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 from datetime import datetime
+from keep_alive import keep_alive
+keep_alive()
+
 
 
 # ─────────────────────────────────────────────

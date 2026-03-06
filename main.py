@@ -5,22 +5,6 @@ import json
 import os
 import asyncio
 from datetime import datetime
-from keep_alive import keep_alive
-from dotenv import load_dotenv
-
-load_dotenv()
-
-
-
-
-keep_alive()
-
-# DEBUG - mostra tutte le variabili d'ambiente disponibili
-print("=== ENV VARS ===")
-for key in os.environ:
-    if "TOKEN" in key or "DISCORD" in key:
-        print(f"  Trovato: {key}")
-print("================")
 
 
 # ─────────────────────────────────────────────
@@ -356,6 +340,10 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 
 @bot.event
 async def on_ready():
+    # Registra view persistenti — funzionano anche dopo restart
+    bot.add_view(TicketPanelView())
+    bot.add_view(TicketControlView())
+    bot.add_view(CloseConfirmView(closer_id=0))
     print(f"\n{'='*45}")
     print(f"  ✅  Logged in as: {bot.user} (ID: {bot.user.id})")
     print(f"  🌐  Guilds: {len(bot.guilds)}")
@@ -381,18 +369,37 @@ async def on_ready():
 #  RUN
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
-    # Legge il .env manualmente, senza dotenv
     TOKEN = ""
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
-    if os.path.exists(env_path):
-        with open(env_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("DISCORD_TOKEN="):
-                    TOKEN = line.split("=", 1)[1].strip()
-                    break
+
+    # 1. Prova variabile d'ambiente diretta (Render environment vars)
+    TOKEN = os.getenv("DISCORD_TOKEN", "").strip()
+
+    # 2. Prova il Secret File di Render (/etc/secrets/env)
     if not TOKEN:
-        print("❌ Token non trovato nel .env!")
+        for secret_path in ["/etc/secrets/env", "/etc/secrets/.env"]:
+            if os.path.exists(secret_path):
+                with open(secret_path, "r") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("DISCORD_TOKEN="):
+                            TOKEN = line.split("=", 1)[1].strip()
+                            break
+                if TOKEN:
+                    break
+
+    # 3. Prova il file .env locale (per sviluppo in locale)
+    if not TOKEN:
+        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+        if os.path.exists(env_path):
+            with open(env_path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("DISCORD_TOKEN="):
+                        TOKEN = line.split("=", 1)[1].strip()
+                        break
+
+    if not TOKEN:
+        print("❌ Token non trovato! Controlla le variabili d'ambiente su Render.")
     else:
-        print(f"✅ Token letto dal .env ({len(TOKEN)} caratteri)")
+        print(f"✅ Token trovato ({len(TOKEN)} caratteri)")
         bot.run(TOKEN)

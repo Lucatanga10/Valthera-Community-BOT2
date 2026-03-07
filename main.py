@@ -161,11 +161,11 @@ class TicketPanelView(discord.ui.View):
 #  CLOSE CONFIRM
 # ─────────────────────────────────────────────
 class CloseConfirmView(discord.ui.View):
-    def __init__(self, closer_id: int):
-        super().__init__(timeout=30)
+    def __init__(self, closer_id: int = 0):
+        super().__init__(timeout=None)
         self.closer_id = closer_id
 
-    @discord.ui.button(label="Confirm Close", style=discord.ButtonStyle.danger, emoji="🔒")
+    @discord.ui.button(label="Confirm Close", style=discord.ButtonStyle.danger, emoji="🔒", custom_id="close_confirm")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         embed = discord.Embed(title="🔒 Ticket Closing…", description="This ticket will be deleted in **5 seconds**.", color=COLOR_ERROR, timestamp=datetime.utcnow())
@@ -175,7 +175,7 @@ class CloseConfirmView(discord.ui.View):
         await asyncio.sleep(5)
         await interaction.channel.delete(reason=f"Ticket closed by {interaction.user}")
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary, emoji="✖️")
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary, emoji="✖️", custom_id="close_cancel")
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message("❌ Close cancelled.", ephemeral=True)
         self.stop()

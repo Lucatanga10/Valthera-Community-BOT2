@@ -271,7 +271,7 @@ async def setup(interaction: discord.Interaction, channel: discord.TextChannel, 
     embed = discord.Embed(title=title, description=description, color=embed_color, timestamp=datetime.utcnow())
     if website:
         embed.add_field(name="🌐 Website", value=f"[{website}](https://{website.replace('https://','').replace('http://','')})", inline=False)
-    embed.add_field(name="🛒 Payment Methods Accepted", value="💳 **Card** — via Website\n💰 **Crypto** — via Website\n🏦 **iDEAL / Bank** — via Website\n📱 **Apple Pay** — via Website\n💸 **PayPal F&F** — via Ticket", inline=False)
+    embed.add_field(name="🛒 Payment Methods Accepted", value="💳 **Card** — you can find it on the site\n💰 **Crypto** — you can find it on the site\n🏦 **iDEAL / Bank** — you can find it on the site\n📱 **Apple Pay** — you can find it on the site\n💸 **PayPal F&F** — you can find it on the site", inline=False)
     embed.add_field(name="📋 Ticket Types", value="\n".join(f"{v['emoji']} **{v['label']}** — {v['description']}" for v in TICKET_TYPES.values()), inline=False)
     if support_role:
         embed.add_field(name="👥 Support Team", value=support_role.mention, inline=True)
